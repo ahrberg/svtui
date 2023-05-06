@@ -49,12 +49,14 @@ impl SvtClient {
             base_url,
         }
     }
-    pub async fn get_page(&self, page: String) -> Result<SvtResponse, Error> {
+    pub async fn get_page(&self, page: &String) -> Result<SvtResponse, Error> {
         let response = self
             .http_client
             .get(format!("{}/{}", self.base_url, page))
             .send()
             .await?;
+
+        // TODO check status codes. Examples here: https://blog.logrocket.com/making-http-requests-rust-reqwest/
         let response: SvtResponse = response.json().await?;
         Ok(response)
     }
@@ -68,7 +70,8 @@ mod tests {
     #[tokio::test]
     async fn get_page() {
         let client = SvtClient::new(String::from("https://www.svt.se/text-tv/api"));
-        let result = client.get_page(String::from("100")).await;
+        let page = String::from("100");
+        let result = client.get_page(&page).await;
         let response = match result {
             Ok(result) => result,
             Err(error) => panic!("Did not expect error: {:?}", error),
